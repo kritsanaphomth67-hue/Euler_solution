@@ -156,7 +156,7 @@ with tab2:
         markersize=5,
     )
 
-    ax.set_title(f"การประมาณค่าด้วยวิธี Euler (h = {h})", fontsize=14)
+    ax.set_title(f"Euler (h = {h})", fontsize=14)
     ax.set_xlabel("t", fontsize=12)
     ax.set_ylabel("y(t)", fontsize=12)
     ax.legend()
