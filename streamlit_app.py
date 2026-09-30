@@ -1,6 +1,6 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import plotly.graph_objects as go
 import streamlit as st
 
 # ---------------------------------------------------------
@@ -15,12 +15,12 @@ st.set_page_config(
 st.title("Project 1: Euler's Method Approximation")
 
 # ---------------------------------------------------------
-# ข้อกำหนดข้อ 5: Layout Organization (ใช้ st.sidebar รับค่า)
-# ข้อกำหนดข้อ 1: Interactive Controls (ใช้ Widgets อย่างน้อย 3 ชนิด)
+# ข้อกำหนดข้อ 5: Layout Organization (ใช้ st.sidebar รับค่า)[cite: 2]
+# ข้อกำหนดข้อ 1: Interactive Controls (ใช้ Widgets อย่างน้อย 3 ชนิด)[cite: 2]
 # ---------------------------------------------------------
-st.sidebar.header("⚙️ การตั้งค่าพารามิเตอร์ (Input)")
+st.sidebar.header("⚙️️ การตั้งค่าพารามิเตอร์ (Input)")
 
-# Widget ชนิดที่ 1: st.number_input สำหรับรับค่า step size (h)
+# Widget ชนิดที่ 1: st.number_input สำหรับรับค่า step size (h)[cite: 1, 2]
 h = st.sidebar.number_input(
     "1. กำหนดขนาดก้าว (Step size: h)",
     min_value=0.001,
@@ -38,10 +38,10 @@ precision = st.sidebar.slider(
     value=7,
 )
 
-# Widget ชนิดที่ 3: st.selectbox สำหรับเลือกสไตล์ของกราฟ[cite: 2]
-chart_theme = st.sidebar.selectbox(
-    "3. เลือกรูปแบบธีมกราฟ (Chart Theme)",
-    ["plotly_white", "plotly_dark", "ggplot2", "seaborn"],
+# Widget ชนิดที่ 3: st.selectbox สำหรับเลือกสไตล์กราฟของ Matplotlib[cite: 2]
+plt_style = st.sidebar.selectbox(
+    "3. เลือกรูปแบบสไตล์กราฟ (Plot Style)",
+    ["default", "ggplot", "bmh", "fivethirtyeight"],
 )
 
 # ---------------------------------------------------------
@@ -74,7 +74,7 @@ euler_values = np.array(euler_values)
 exact_values = exact_solution(t_values)
 errors = np.abs(exact_values - euler_values)
 
-# สร้าง DataFrame สำหรับแสดงผล
+# สร้าง DataFrame สำหรับแสดงผล[cite: 1, 2]
 df = pd.DataFrame(
     {
         "t_i": t_values,
@@ -118,8 +118,8 @@ with tab1:
     )
 
 # ---------------------------------------------------------
-# Tab 2: ตัวจำลองและแสดงกราฟปฏิสัมพันธ์
-# ข้อกำหนดข้อ 3: Dynamic Visualization (ใช้ st.plotly_chart)[cite: 2]
+# Tab 2: ตัวจำลองและแสดงกราฟด้วย Matplotlib
+# ข้อกำหนดข้อ 3: Dynamic Visualization (ใช้ st.pyplot)[cite: 2]
 # ข้อกำหนดข้อ 4: Step-by-Step Calculation (ใช้ st.metric)[cite: 2]
 # ---------------------------------------------------------
 with tab2:
@@ -131,38 +131,39 @@ with tab2:
     m2.metric("Error สูงสุด (Max Error)", f"{np.max(errors):.{precision}f}")
     m3.metric("Error เฉลี่ย (Mean Error)", f"{np.mean(errors):.{precision}f}")
 
-    # สร้างกราฟเปรียบเทียบด้วย Plotly[cite: 2]
-    fig = go.Figure()
-    fig.add_trace(
-        go.Scatter(
-            x=t_values,
-            y=exact_values,
-            mode="lines",
-            name="Exact Solution",
-            line=dict(color="#1f77b4", width=3),
-        )
-    )
-    fig.add_trace(
-        go.Scatter(
-            x=t_values,
-            y=euler_values,
-            mode="lines+markers",
-            name="Euler's Method",
-            line=dict(color="#ff7f0e", dash="dash", width=2),
-            marker=dict(size=6),
-        )
+    # สร้างกราฟเปรียบเทียบด้วย Matplotlib (st.pyplot)[cite: 2]
+    plt.style.use(plt_style)
+    fig, ax = plt.subplots(figsize=(10, 5))
+
+    # วาดเส้น Exact Solution แบบละเอียดเพื่อให้กราฟเรียบสวยงาม
+    t_dense = np.linspace(t_start, t_end, 200)
+    ax.plot(
+        t_dense,
+        exact_solution(t_dense),
+        label="Exact Solution",
+        color="#1f77b4",
+        linewidth=2,
     )
 
-    fig.update_layout(
-        title=f"การประมาณค่าด้วยวิธี Euler (h = {h})",
-        xaxis_title="t",
-        yaxis_title="y(t)",
-        template=chart_theme,
-        hovermode="x unified",
-        height=500,
+    # วาดจุดและเส้น Euler's Method[cite: 1]
+    ax.plot(
+        t_values,
+        euler_values,
+        "o--",
+        label="Euler's Method",
+        color="#ff7f0e",
+        linewidth=1.5,
+        markersize=5,
     )
 
-    st.plotly_chart(fig, use_container_width=True)
+    ax.set_title(f"การประมาณค่าด้วยวิธี Euler (h = {h})", fontsize=14)
+    ax.set_xlabel("t", fontsize=12)
+    ax.set_ylabel("y(t)", fontsize=12)
+    ax.legend()
+    ax.grid(True, linestyle="--", alpha=0.6)
+
+    # แสดงผลกราฟบน Streamlit ด้วย st.pyplot[cite: 2]
+    st.pyplot(fig)
 
 # ---------------------------------------------------------
 # Tab 3: ตารางเปรียบเทียบผลลัพธ์
@@ -171,7 +172,7 @@ with tab2:
 with tab3:
     st.subheader(f"ตารางเปรียบเทียบค่าที่คำนวณได้ (h = {h})")
 
-    # จัดการรูปแบบทศนิยมตามที่ผู้ใช้เลือก
+    # จัดการรูปแบบทศนิยมตามที่ผู้ใช้เลือก[cite: 1, 2]
     df_display = df.copy()
     df_display["t_i"] = df_display["t_i"].map(lambda x: f"{x:.2f}")
     df_display["Euler's"] = df_display["Euler's"].map(
