@@ -2,6 +2,7 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import numpy as np
 st.title('App name')
+st.latex(
 def f(x):
     return x**3+4*x**2+x-1
 def df(x):
